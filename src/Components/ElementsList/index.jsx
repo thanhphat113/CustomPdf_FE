@@ -6,12 +6,12 @@ function ElementsList() {
     const elements = useSelector((state) => state.data.elements);
 
     return (
-        <div className="w-[95%] flex-1 flex flex-col">
-            <TextInput
+        <div className="w-[95%] h-[70%] flex flex-col">
+            {/* <TextInput
                 className="w-full h-[2.5rem] ps-1 "
                 placeholder="Nhập tên thuộc tính..."
-            />
-            <div className="border w-full max-h-[70%] overflow-auto">
+            /> */}
+            <div className="border w-full max-h-[100%] overflow-auto">
                 {elements.map((element) => (
                     <ElementItem key={element.id} element={element} />
                 ))}

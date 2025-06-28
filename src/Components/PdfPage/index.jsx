@@ -1,12 +1,13 @@
-import Draggable from "react-draggable";
 import { GroupByY } from "../../Helpers/GroupByY";
-import { cmToPx, mmToPx } from "../../Helpers/unitConverter";
+import { mmToPx } from "../../Helpers/unitConverter";
 import { getTextWidth } from "../../Helpers/GetTextWidth";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { moveElement } from "../../redux/Slices/DataSlice";
-import CheckboxTooltip from "../Tooltips";
-import Tippy from "@tippyjs/react";
+import { SetSTT } from "../../Helpers/SetSTT";
+import SimpleElements from "../simpleElements";
+import DrawDot from "../simpleElements/DrawDot";
+import DrawBox from "../simpleElements/DrawBox";
 
 const SNAP_TOLERANCE = 10;
 
@@ -15,13 +16,17 @@ function PdfPage({ widthMm, heightMm }) {
     const heightPx = mmToPx(heightMm);
 
     const data = useSelector((state) => state.data.elements);
+
     const dispatch = useDispatch();
-    const [elements, setElements] = useState([]);
+    const [simpleElements, setSimpleElements] = useState([]);
+    const [elementsWithSTT, setElementsWithSTT] = useState([]);
+    const [guides, setGuides] = useState({ x: null, y: null });
 
     const positionsRef = useRef({});
 
     useEffect(() => {
-        setElements(GroupByY(data));
+        setSimpleElements(GroupByY(data.filter((e) => e.type !== "table")));
+        setElementsWithSTT(SetSTT(data));
 
         data.forEach((item) => {
             positionsRef.current[item.id] = { x: item.x, y: item.y };
@@ -29,80 +34,43 @@ function PdfPage({ widthMm, heightMm }) {
         console.log(positionsRef);
     }, [data]);
 
-    const handleStop = (id, e, data) => {
-        let snapS = data.x;
-        let snapT = data.y;
-        // let snapB = data.x;
-        // let snapE = data.x;
-
-        let guideX = 0;
-        let guideY = 0;
-
-        const flatElements = elements.flat();
-        const elementNoActive = flatElements.filter(
-            (item) => item.trangThai === 1
-        );
-
-        for (const item of elementNoActive) {
-            if (item.id === id) continue;
-
-            if (Math.abs(data.x - item.x) < SNAP_TOLERANCE) {
-                snapS = item.x;
-                guideX = item.x;
-            }
-
-            if (Math.abs(data.y - item.y) < SNAP_TOLERANCE) {
-                snapT = item.y;
-                guideY = item.y;
-            }
-        }
+    const handleStop = (id) => {
+        const flatElements = simpleElements.flat();
         const { x, y } = positionsRef.current[id];
 
+        setGuides({ x: null, y: null });
         dispatch(moveElement({ flatElements, id, snapS: x, snapT: y }));
     };
 
     const handleDrag = (id, e, data) => {
-        let snapS = data.x;
-        let snapT = data.y;
-        // let snapB = data.x;
-        // let snapE = data.x;
+        let snapX = data.x;
+        let snapY = data.y;
 
         let guideX = 0;
         let guideY = 0;
 
-        console.log(Object.values(positionsRef.current));
+        const flatElements = simpleElements.flat();
 
-        for (const [otherId, pos] of Object.entries(positionsRef.current)) {
-            console.log(otherId, ", ", pos);
-        }
-
-        const flatElements = elements.flat();
-
-        const elementNoActive = flatElements.filter(
+        const elementActive = flatElements.filter(
             (item) => item.trangThai === 1
         );
 
-        for (const item of elementNoActive) {
+        for (const item of elementActive) {
             if (item.id === id) continue;
 
             if (Math.abs(data.x - item.x) < SNAP_TOLERANCE) {
-                snapS = item.x;
-                guideX = item.x;
+                snapX = item.x;
+                guideX = item.x
             }
 
             if (Math.abs(data.y - item.y) < SNAP_TOLERANCE) {
-                snapT = item.y;
-                guideY = item.y;
+                snapY = item.y ;
+                guideY = item.y + 30;
             }
         }
 
-        //   if (Math.abs(data.y - box.y) < SNAP_TOLERANCE) {
-        //     snapY = box.y;
-        //     guideY = box.y;
-        //   }
-        // }
-
-        positionsRef.current[id] = { x: snapS, y: snapT };
+        setGuides({ x: guideX, y: guideY });
+        positionsRef.current[id] = { x: snapX, y: snapY };
     };
 
     return (
@@ -114,31 +82,30 @@ function PdfPage({ widthMm, heightMm }) {
             }}
             className="bg-white my-6 shadow-[0_0_15px_rgba(0,0,0,0.3)] relative px-1 mx-2 py-2"
         >
-            {elements.map((el, idx) => (
+            {guides.x !== null && guides.x !== 0 && (
+                <div
+                    className="absolute w-[1px] h-full text-center border border-dotted z-10"
+                    style={{ left: guides.x }}
+                ></div>
+            )}
+            {guides.y !== null && guides.y !== 0 && (
+                <div
+                    className="absolute h-[1px] w-full border border-dotted z-10"
+                    style={{ top: guides.y }}
+                />
+            )}
+            {simpleElements.map((el, idx) => (
                 <>
                     {el.map((item) => {
                         if (item.trangThai === 0) return null;
-
                         return (
-                            <Draggable
-                                onStop={(e, data) =>
-                                    handleStop(item.id, e, data)
-                                }
-                                onDrag={(e, data) =>
-                                    handleDrag(item.id, e, data)
-                                }
-                                position={{ x: item.x, y: item.y }}
+                            <SimpleElements
                                 key={item.id}
-                                bounds="parent"
-                            >
-                                <div className="absolute select-none">
-                                    <CheckboxTooltip id={item.id}>
-                                        <span className="hover:border-black border-transparent border border-dotted cursor-move whitespace-nowrap">
-                                            {item.text} :
-                                        </span>
-                                    </CheckboxTooltip>
-                                </div>
-                            </Draggable>
+                                item={item}
+                                elementsWithSTT={elementsWithSTT}
+                                handleStop={handleStop}
+                                handleDrag={handleDrag}
+                            />
                         );
                     })}
 
@@ -151,26 +118,25 @@ function PdfPage({ widthMm, heightMm }) {
                         }
 
                         const next = el[nextIdx];
+                        const haveStt = elementsWithSTT.some(
+                            (e) => e.id === item.id
+                        );
 
-                        const startX = item.x + getTextWidth(item.text) + 20;
+                        const startX =
+                            item.x +
+                            getTextWidth(item.text) +
+                            20 +
+                            (haveStt ? 30 : 0);
                         const endX = next ? next.x - 10 : widthPx - 20;
 
                         const width = endX - startX;
                         if (!item.dot.visible) return;
                         return (
-                            <div
-                                key={`dots-${item.id}`}
-                                className="absolute border-t border-dotted "
-                                style={{
-                                    left: startX,
-                                    top: item.y + 30,
-                                    width:
-                                        item.dot.width !== 0
-                                            ? item.dot.width
-                                            : width > 0
-                                            ? width
-                                            : 0,
-                                }}
+                            <DrawDot
+                                key={`dot-${item.id}`}
+                                item={item}
+                                startX={startX}
+                                width={width}
                             />
                         );
                     })}
@@ -183,22 +149,7 @@ function PdfPage({ widthMm, heightMm }) {
                         if (!item.box.visible) return;
 
                         return (
-                            <div
-                                key={idx}
-                                className="flex absolute"
-                                style={{
-                                    left: startX,
-                                    top: item.y + 10,
-                                }}
-                            >
-                                {Array.from(item.box.list).map((box, id) => (
-                                    <div
-                                        key={id}
-                                        className={`h-[30px] border`}
-                                        style={{ width: cmToPx(box) }}
-                                    ></div>
-                                ))}
-                            </div>
+                            <DrawBox key={idx} item={item} startX={startX} />
                         );
                     })}
                 </>

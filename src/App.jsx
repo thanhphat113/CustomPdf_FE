@@ -34,7 +34,10 @@ function App() {
                 </div>
                 <SelectTypePdf></SelectTypePdf>
                 <ElementsList/>
-                
+                <div className="flex flex-1">
+                    <button>Lưu mẫu</button>
+                    <button>Đổ dữ liệu</button>
+                </div>
             </aside>
             <div className="bg-[#808080] flex-1 h-screen justify-center overflow-auto">
                 <PdfPage widthMm={widthMm} heightMm={heightMm}></PdfPage>

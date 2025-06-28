@@ -4,3 +4,4 @@ export function getTextWidth(text, font = "16px Arial") {
     ctx.font = font;
     return ctx.measureText(text).width;
 }
+
