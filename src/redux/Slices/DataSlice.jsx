@@ -1,3 +1,4 @@
+import { arrayMove } from "@dnd-kit/sortable";
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -187,10 +188,41 @@ const initialState = {
             id: 11,
             type: "table",
             font: 12,
-            x: 400,
-            y: 330,
+            x: 0,
+            y: 500,
             trangThai: 1,
-            columns: ["Tên", "Tuổi", "Họ", "Con mèo"],
+            columns: [
+                {
+                    colId: 1,
+                    tenCot: "Thông tin cá nhân",
+                    columns: [
+                        { colId: 11, tenCot: "Họ", parent: 1 },
+                        { colId: 12, tenCot: "Tên", parent: 1 },
+                        { colId: 13, tenCot: "Tuổi", parent: 1 },
+                    ],
+                },
+                {
+                    colId: 2,
+                    tenCot: "Liên hệ",
+                    columns:[],
+                },
+                {
+                    colId: 3,
+                    tenCot: "Thú cưng",
+                    columns: [
+                        {
+                            colId: 31,
+                            tenCot: "Con mèo",
+                            parent: 3,
+                        },
+                        {
+                            colId: 32,
+                            tenCot: "Con chó",
+                            parent: 3,
+                        },
+                    ],
+                },
+            ],
         },
         {
             id: 10,
@@ -246,6 +278,23 @@ const dataSlice = createSlice({
                 if (!element.box.visible) element.box.list = [];
             }
         },
+        moveCol: (state, action) => {
+            const { id, active, over } = action.payload;
+
+            const element = state.elements.find((el) => el.id === id);
+            if (!element || !over) return;
+
+            const oldIndex = element.columns.findIndex(
+                (col) => col.colId === active.id
+            );
+            const newIndex = element.columns.findIndex(
+                (col) => col.colId === over.id
+            );
+
+            if (oldIndex === -1 || newIndex === -1) return;
+
+            element.columns = arrayMove(element.columns, oldIndex, newIndex);
+        },
         toggleStt: (state, action) => {
             const element = state.elements.find(
                 (el) => el.id === action.payload
@@ -276,6 +325,12 @@ const dataSlice = createSlice({
                 item.id === id ? { ...item, x: snapS, y: snapT } : item
             );
         },
+        moveTable: (state, action) => {
+            const { id, snapT } = action.payload;
+            state.elements = state.elements.map((item) =>
+                item.id === id ? { ...item, y: snapT } : item
+            );
+        },
     },
 });
 
@@ -287,5 +342,7 @@ export const {
     setWidthBoxsItem,
     toggleBox,
     setWidthDotItem,
+    moveCol,
+    moveTable,
 } = dataSlice.actions;
 export default dataSlice.reducer;

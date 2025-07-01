@@ -6,7 +6,7 @@ function DrawBox({item, startX}) {
             className="flex absolute"
             style={{
                 left: startX,
-                top: item.y + 5,
+                top: item.y ,
             }}
         >
             {Array.from(item.box.list).map((box, id) => (
