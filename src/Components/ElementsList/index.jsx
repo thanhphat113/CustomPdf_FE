@@ -13,7 +13,7 @@ function ElementsList() {
             /> */}
             <div className="border w-full max-h-[100%] overflow-auto">
                 {elements.map((element) => (
-                    <ElementItem key={element.id} element={element} />
+                    <ElementItem key={element.idThuocTinh} element={element} />
                 ))}
             </div>
         </div>

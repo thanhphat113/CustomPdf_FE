@@ -1,191 +1,292 @@
 import { arrayMove } from "@dnd-kit/sortable";
 import { createSlice } from "@reduxjs/toolkit";
+import { getAllPdfs } from "../Actions/DataAction";
 
 const initialState = {
     pdfName: "demo",
     elements: [
         {
-            id: 100,
+            id: 1,
             type: "text",
             width: 200,
             height: 30,
             font: 12,
             x: 50,
             y: 80,
-            text: "Họ và tên",
+            text: "Họ tên",
             stt: false,
-            trangThai: 0,
+            trangThai: 1,
             dot: {
-                visible: true,
+                visible: false,
                 width: 0,
             },
             box: {
-                visible: true,
+                visible: false,
                 list: [],
             },
         },
         {
             id: 2,
-            width: 180,
+            type: "text",
+            width: 200,
             height: 30,
             font: 12,
-            type: "text",
-
-            x: 400,
-            y: 80,
+            x: 50,
+            y: 120,
             text: "Ngày sinh",
-            stt: true,
+            stt: false,
             trangThai: 1,
             dot: {
-                visible: true,
+                visible: false,
                 width: 0,
             },
             box: {
-                visible: true,
+                visible: false,
                 list: [],
             },
         },
         {
             id: 3,
-            width: 300,
             type: "text",
+            width: 200,
             height: 30,
             font: 12,
             x: 50,
-            y: 130,
-            stt: true,
-            text: "Địa chỉ thường trú",
-            trangThai: 0,
+            y: 160,
+            text: "Giới tính",
+            stt: false,
+            trangThai: 1,
             dot: {
-                visible: true,
+                visible: false,
                 width: 0,
             },
             box: {
-                visible: true,
+                visible: false,
                 list: [],
             },
         },
         {
             id: 4,
-            width: 100,
+            type: "text",
+            width: 200,
             height: 30,
             font: 12,
-            type: "text",
-            x: 400,
-            stt: true,
-            y: 130,
-            text: "Giới tính",
+            x: 50,
+            y: 200,
+            text: "Địa chỉ",
+            stt: false,
             trangThai: 1,
             dot: {
-                visible: true,
+                visible: false,
                 width: 0,
             },
             box: {
-                visible: true,
+                visible: false,
                 list: [],
             },
         },
         {
             id: 5,
-            width: 250,
             type: "text",
+            width: 200,
             height: 30,
             font: 12,
             x: 50,
-            y: 180,
-            text: "Số CMND/CCCD",
+            y: 240,
+            text: "Huyết áp",
+            stt: false,
             trangThai: 1,
             dot: {
-                visible: true,
+                visible: false,
                 width: 0,
             },
             box: {
-                visible: true,
+                visible: false,
                 list: [],
             },
         },
         {
             id: 6,
+            type: "text",
             width: 200,
             height: 30,
-            type: "text",
             font: 12,
             x: 50,
+            y: 280,
+            text: "Cân nặng",
             stt: false,
-            y: 230,
-            text: "Email",
             trangThai: 1,
             dot: {
-                visible: true,
+                visible: false,
                 width: 0,
             },
             box: {
-                visible: true,
+                visible: false,
                 list: [],
             },
         },
         {
             id: 7,
-            width: 150,
-            height: 30,
             type: "text",
+            width: 200,
+            height: 30,
             font: 12,
-            x: 400,
-            stt: true,
-            y: 230,
-            text: "Số điện thoại",
+            x: 50,
+            y: 320,
+            text: "Lý do vào viện",
+            stt: false,
             trangThai: 1,
             dot: {
-                visible: true,
+                visible: false,
                 width: 0,
             },
             box: {
-                visible: true,
+                visible: false,
                 list: [],
             },
         },
         {
             id: 8,
-            width: 400,
+            type: "text",
+            width: 200,
             height: 30,
             font: 12,
-            type: "text",
             x: 50,
+            y: 360,
+            text: "Số thứ tự",
             stt: false,
-            y: 280,
-            text: "Trình độ học vấn",
             trangThai: 1,
             dot: {
-                visible: true,
+                visible: false,
                 width: 0,
             },
             box: {
-                visible: true,
+                visible: false,
                 list: [],
             },
         },
         {
             id: 9,
-            width: 300,
-            height: 30,
             type: "text",
+            width: 200,
+            height: 30,
             font: 12,
             x: 50,
-            stt: true,
-            y: 330,
-            text: "Ngành học",
-            trangThai: 0,
+            y: 400,
+            text: "Nhiệt độ",
+            stt: false,
+            trangThai: 1,
             dot: {
-                visible: true,
+                visible: false,
                 width: 0,
             },
             box: {
-                visible: true,
+                visible: false,
+                list: [],
+            },
+        },
+        {
+            id: 10,
+            type: "text",
+            width: 200,
+            height: 30,
+            font: 12,
+            x: 50,
+            y: 440,
+            text: "Mã thẻ BHYT",
+            stt: false,
+            trangThai: 1,
+            dot: {
+                visible: false,
+                width: 0,
+            },
+            box: {
+                visible: false,
                 list: [],
             },
         },
         {
             id: 11,
+            type: "text",
+            width: 200,
+            height: 30,
+            font: 12,
+            x: 50,
+            y: 480,
+            text: "Điện thoại",
+            stt: false,
+            trangThai: 1,
+            dot: {
+                visible: false,
+                width: 0,
+            },
+            box: {
+                visible: false,
+                list: [],
+            },
+        },
+        {
+            id: 12,
+            type: "text",
+            width: 200,
+            height: 30,
+            font: 12,
+            x: 50,
+            y: 520,
+            text: "Mạch",
+            stt: false,
+            trangThai: 1,
+            dot: {
+                visible: false,
+                width: 0,
+            },
+            box: {
+                visible: false,
+                list: [],
+            },
+        },
+        {
+            id: 13,
+            type: "text",
+            width: 200,
+            height: 30,
+            font: 12,
+            x: 50,
+            y: 560,
+            text: "Chẩn đoán",
+            stt: false,
+            trangThai: 1,
+            dot: {
+                visible: false,
+                width: 0,
+            },
+            box: {
+                visible: false,
+                list: [],
+            },
+        },
+        {
+            id: 14,
+            type: "text",
+            width: 200,
+            height: 30,
+            font: 12,
+            x: 50,
+            y: 600,
+            text: "Triệu chứng",
+            stt: false,
+            trangThai: 1,
+            dot: {
+                visible: false,
+                width: 0,
+            },
+            box: {
+                visible: false,
+                list: [],
+            },
+        },
+        {
+            id: 15,
             type: "table",
             font: 12,
             x: 0,
@@ -204,7 +305,7 @@ const initialState = {
                 {
                     colId: 2,
                     tenCot: "Liên hệ",
-                    columns:[],
+                    columns: [],
                 },
                 {
                     colId: 3,
@@ -224,45 +325,27 @@ const initialState = {
                 },
             ],
         },
-        {
-            id: 10,
-            width: 200,
-            type: "text",
-            height: 30,
-            font: 12,
-            x: 400,
-            stt: false,
-            y: 330,
-            text: "Năm tốt nghiệp",
-            trangThai: 1,
-            dot: {
-                visible: false,
-                width: 0,
-            },
-            box: {
-                visible: true,
-                list: [0.7, 1, 1],
-            },
-        },
     ],
 };
 
 const dataSlice = createSlice({
     name: "data",
-    initialState,
+    initialState: {
+        pdf: null,
+        elements: [],
+    },
     reducers: {
         toggleElement: (state, action) => {
-            console.log(action.payload);
             const element = state.elements.find(
-                (el) => el.id === action.payload
+                (el) => el.idThuocTinh === action.payload
             );
             if (element) {
-                element.trangThai = element.trangThai === 0 ? 1 : 0;
+                element.trangThai = !element.trangThai;
             }
         },
         toggleDot: (state, action) => {
             const element = state.elements.find(
-                (el) => el.id === action.payload
+                (el) => el.idThuocTinh === action.payload
             );
             if (element) {
                 element.dot.visible = !element.dot.visible;
@@ -271,7 +354,7 @@ const dataSlice = createSlice({
         },
         toggleBox: (state, action) => {
             const element = state.elements.find(
-                (el) => el.id === action.payload
+                (el) => el.idThuocTinh === action.payload
             );
             if (element) {
                 element.box.visible = !element.box.visible;
@@ -297,7 +380,7 @@ const dataSlice = createSlice({
         },
         toggleStt: (state, action) => {
             const element = state.elements.find(
-                (el) => el.id === action.payload
+                (el) => el.idThuocTinh === action.payload
             );
             if (element) {
                 element.stt = !element.stt;
@@ -322,15 +405,31 @@ const dataSlice = createSlice({
         moveElement: (state, action) => {
             const { flatElements, id, snapS, snapT } = action.payload;
             state.elements = flatElements.map((item) =>
-                item.id === id ? { ...item, x: snapS, y: snapT } : item
+                item.idThuocTinh === id ? { ...item, x: snapS, y: snapT } : item
             );
         },
         moveTable: (state, action) => {
             const { id, snapT } = action.payload;
             state.elements = state.elements.map((item) =>
-                item.id === id ? { ...item, y: snapT } : item
+                item.idThuocTinh === id ? { ...item, y: snapT } : item
             );
         },
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(getAllPdfs.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(getAllPdfs.fulfilled, (state, action) => {
+                const { data } = action.payload
+                state.pdf = data.pdf
+                state.elements = data.elements
+            })
+            .addCase(getAllPdfs.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            });
     },
 });
 

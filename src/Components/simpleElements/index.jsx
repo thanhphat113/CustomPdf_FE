@@ -4,23 +4,24 @@ import CheckboxTooltip from "../Tooltips";
 function SimpleElements({ item, elementsWithSTT, handleStop, handleDrag }) {
     return (
         <Draggable
-            onStop={() => handleStop(item.id)}
-            onDrag={(e, data) => handleDrag(item.id, e, data)}
+            onStop={() => handleStop(item.idThuocTinh)}
+            onDrag={(e, data) => handleDrag(e, data, item)}
             position={{ x: item.x, y: item.y }}
             bounds="parent"
+            handle=".handle"
         >
             <div className="absolute select-none">
-                <CheckboxTooltip id={item.id}>
-                    <span className="hover:border-black border-transparent border border-dotted cursor-move whitespace-nowrap">
+                <CheckboxTooltip id={item.idThuocTinh}>
+                    <span className="handle hover:border-black border-transparent border border-dotted cursor-move whitespace-nowrap">
                         {(() => {
                             const activeIndex = elementsWithSTT.findIndex(
-                                (e) => e.id === item.id
+                                (e) => e.idThuocTinh === item.idThuocTinh
                             );
                             if (activeIndex !== -1)
                                 return `(${activeIndex + 1})`;
                             return "";
                         })()}{" "}
-                        {item.text} :
+                        {item.noiDung}:
                     </span>
                 </CheckboxTooltip>
             </div>

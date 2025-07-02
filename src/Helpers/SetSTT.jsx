@@ -7,8 +7,8 @@ export function SetSTT(list) {
 	})
 
 	const withSTT = sorted.map((item) => ({
-		id: item.id,
+		idThuocTinh: item.idThuocTinh,
 	  }));
-
+	  console.log(withSTT)
     return withSTT;
 }

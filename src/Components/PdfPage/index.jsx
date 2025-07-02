@@ -10,7 +10,8 @@ import DrawDot from "../simpleElements/DrawDot";
 import DrawBox from "../simpleElements/DrawBox";
 import TableElement from "../TableElement";
 
-const SNAP_TOLERANCE = 10;
+const SNAP_TOLERANCE = 5;
+const SNAP_TOLERANCE_BETWEEN = 50;
 
 function PdfPage({ widthMm, heightMm }) {
     const widthPx = mmToPx(widthMm);
@@ -24,6 +25,7 @@ function PdfPage({ widthMm, heightMm }) {
     const [simpleElements, setSimpleElements] = useState([]);
     const [elementsWithSTT, setElementsWithSTT] = useState([]);
     const [guides, setGuides] = useState({ x: null, y: null });
+    const pdfRef = useRef();
 
     const positionsRef = useRef({});
 
@@ -40,6 +42,7 @@ function PdfPage({ widthMm, heightMm }) {
     const handleStop = (id) => {
         const flatElements = simpleElements.flat();
         const { x, y } = positionsRef.current[id];
+        console.log("Đây là: ",positionsRef.current[id])
 
         setGuides({ x: null, y: null });
         dispatch(moveElement({ flatElements, id, snapS: x, snapT: y }));
@@ -52,7 +55,7 @@ function PdfPage({ widthMm, heightMm }) {
         dispatch(moveTable({ id, snapT: y }));
     };
 
-    const handleDrag = (id, e, data) => {
+    const handleDrag = ( e, data, currentElement) => {
         let snapX = data.x;
         let snapY = data.y;
 
@@ -62,25 +65,44 @@ function PdfPage({ widthMm, heightMm }) {
         const flatElements = simpleElements.flat();
 
         const elementActive = flatElements.filter(
-            (item) => item.trangThai === 1
+            (item) => item.trangThai
         );
 
+        const textWidth = getTextWidth(currentElement.text) + 10;
+        const offset = currentElement.stt ? 30 : 0;
+        const centerText = (textWidth + offset) / 2;
+        
+        const centerElement = data.x + centerText;
+        const centerContext = pdfRef.current.offsetWidth / 2;
+
+        if (Math.abs(centerElement - centerContext) < SNAP_TOLERANCE) {
+            snapX = centerContext - centerText
+            guideX = centerContext ;
+        }
+
         for (const item of elementActive) {
-            if (item.id === id) continue;
+            if (item.idThuocTinh === currentElement.idThuocTinh) continue;
 
             if (Math.abs(data.x - item.x) < SNAP_TOLERANCE) {
                 snapX = item.x;
                 guideX = item.x;
             }
 
+            if (Math.abs((data.x + getTextWidth(`${currentElement.noiDung}:`)) - (item.x + getTextWidth(`${item.noiDung}:`))) < SNAP_TOLERANCE) {
+                snapX = item.x + getTextWidth(`${item.noiDung}:`) - getTextWidth(`${currentElement.noiDung}:`);
+                guideX = item.x + getTextWidth(`${item.noiDung}:`);
+            }
+
             if (Math.abs(data.y - item.y) < SNAP_TOLERANCE) {
                 snapY = item.y;
-                guideY = item.y + 30;
+                guideY = item.y + 25;
             }
+
         }
 
         setGuides({ x: guideX, y: guideY });
-        positionsRef.current[id] = { x: snapX, y: snapY };
+        positionsRef.current[currentElement.idThuocTinh] = { x: snapX, y: snapY };
+        console.log(positionsRef.current[currentElement.idThuocTinh])
     };
 
     return (
@@ -93,11 +115,11 @@ function PdfPage({ widthMm, heightMm }) {
             }}
             className="bg-white my-6 shadow-[0_0_15px_rgba(0,0,0,0.3)] mx-auto"
         >
-            <div className="relative w-full h-full">
+            <div ref={pdfRef} className="relative w-full h-full">
                 {guides.x !== null && guides.x !== 0 && (
                     <div
                         className="absolute w-[1px] h-full text-center border border-dotted z-10"
-                        style={{ left: guides.x }}
+                        style={{ left: guides.x - 0.5 }}
                     ></div>
                 )}
                 {guides.y !== null && guides.y !== 0 && (
@@ -109,10 +131,10 @@ function PdfPage({ widthMm, heightMm }) {
                 {simpleElements.map((el, idx) => (
                     <>
                         {el.map((item) => {
-                            if (item.trangThai === 0) return null;
+                            if (!item.trangThai) return null;
                             return (
                                 <SimpleElements
-                                    key={item.id}
+                                    key={item.idThuocTinh}
                                     item={item}
                                     elementsWithSTT={elementsWithSTT}
                                     handleStop={handleStop}
@@ -122,22 +144,22 @@ function PdfPage({ widthMm, heightMm }) {
                         })}
 
                         {el.map((item, idx) => {
-                            if (item.trangThai === 0) return null;
+                            if (!item.trangThai) return null;
                             let nextIdx = idx + 1;
 
-                            if (el[nextIdx] && el[nextIdx].trangThai === 0) {
+                            if (el[nextIdx] && !el[nextIdx].trangThai) {
                                 nextIdx++;
                             }
 
                             const next = el[nextIdx];
                             const haveStt = elementsWithSTT.some(
-                                (e) => e.id === item.id
+                                (e) => e.idThuocTinh === item.idThuocTinh
                             );
 
                             const startX =
                                 item.x +
-                                getTextWidth(item.text) +
-                                20 +
+                                getTextWidth(item.noiDung) +
+                                10 +
                                 (haveStt ? 30 : 0);
                             const endX = next
                                 ? next.x - 10
@@ -147,7 +169,7 @@ function PdfPage({ widthMm, heightMm }) {
                             if (!item.dot.visible) return;
                             return (
                                 <DrawDot
-                                    key={`dot-${item.id}`}
+                                    key={`dot-${item.idThuocTinh}`}
                                     item={item}
                                     startX={startX}
                                     width={width}
@@ -156,10 +178,10 @@ function PdfPage({ widthMm, heightMm }) {
                         })}
 
                         {el.map((item, idx) => {
-                            if (item.trangThai === 0) return null;
+                            if (!item.trangThai) return null;
 
                             const startX =
-                                item.x + getTextWidth(item.text) + 20;
+                                item.x + getTextWidth(item.noiDung) + 20;
 
                             if (!item.box.visible) return;
 
@@ -173,15 +195,15 @@ function PdfPage({ widthMm, heightMm }) {
                         })}
                     </>
                 ))}
-                {tableElements && tableElements.map((item) => (
-                    <TableElement
-                        handleStop={handleStopTable}
-                        handleDrag={handleDrag}
-                        key={item.id}
-                        table={item}
-                    ></TableElement>
-                ))}
-
+                {tableElements &&
+                    tableElements.map((item) => (
+                        <TableElement
+                            handleStop={handleStopTable}
+                            handleDrag={handleDrag}
+                            key={item.idThuocTinh}
+                            table={item}
+                        ></TableElement>
+                    ))}
             </div>
         </div>
     );

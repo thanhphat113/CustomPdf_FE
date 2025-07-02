@@ -18,7 +18,7 @@ function CheckboxTooltip({ children, id }) {
     const [widthDot, setWidthDot] = useState(0);
     const [widthBoxs, setWidthBoxs] = useState('');
     const elements = useSelector((state) => state.data.elements);
-    const selectedElement = elements.find((el) => el.id === id);
+    const selectedElement = elements.find((el) => el.idThuocTinh === id);
 
     const dispatch = useDispatch();
 
@@ -87,7 +87,7 @@ function CheckboxTooltip({ children, id }) {
                             <TextInput
                                 className="ps-1 w-[7rem]"
                                 text={widthBoxs}
-                                id={selectedElement.id}
+                                id={selectedElement.idThuocTinh}
                                 onChange={handleChangeBoxs}
                                 placeholder="Nhập kích thước..."
                             />
