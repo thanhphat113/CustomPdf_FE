@@ -4,7 +4,7 @@ function DrawDot({item, startX, width}) {
             className="absolute border-t border-dotted "
             style={{
                 left: startX,
-                top: item.y + 25,
+                top: item.y + 33,
                 width:
                     item.dot.width !== 0
                         ? item.dot.width

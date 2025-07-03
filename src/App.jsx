@@ -3,15 +3,34 @@ import Input from "./Components/Inputs/TextInput";
 import PdfPage from "./Components/pdfPage";
 import SelectTypePdf from "./Components/Selects/SelectTypePdf";
 import ElementsList from "./Components/ElementsList";
-
-const DEFAULT_TEXT_HEIGHT = 40;
+import { useDispatch, useSelector } from "react-redux";
+import { saveAllPdfs } from "./redux/Actions/DataAction";
+import Announcement from "./Components/Announcement";
+import { AnimatePresence } from "framer-motion";
 
 function App() {
-    const [widthMm, setWidthMm] = useState(210);
-    const [heightMm, setHeightMm] = useState(297);
+    const pdf = useSelector((state) => state.data.pdf);
+    const [widthMm, setWidthMm] = useState(pdf?.rong || 210);
+    const [heightMm, setHeightMm] = useState(pdf?.dai || 297);
+
+    const dispatch = useDispatch();
+    const elements = useSelector((state) => state.data.elements);
+    const { isLoading, isSuccess, message } = useSelector(
+        (state) => state.announcement
+    );
+
+    const saveAllElements = async (elements) => {
+        await dispatch(saveAllPdfs(elements));
+    };
 
     return (
         <div className="flex">
+            <AnimatePresence>
+                {message && (
+                    <Announcement message={message} isSuccess={isSuccess} />
+                )}
+            </AnimatePresence>
+
             <aside className="bg-white h-screen py-6 w-70 flex flex-col items-center gap-5">
                 <div className="flex justify-center gap-1">
                     <div>
@@ -33,9 +52,11 @@ function App() {
                     </div>
                 </div>
                 <SelectTypePdf></SelectTypePdf>
-                <ElementsList/>
+                <ElementsList />
                 <div className="flex flex-1">
-                    <button>Lưu mẫu</button>
+                    <button onClick={() => saveAllElements(elements)}>
+                        Lưu mẫu
+                    </button>
                     <button>Đổ dữ liệu</button>
                 </div>
             </aside>

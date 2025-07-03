@@ -10,7 +10,7 @@ import DrawDot from "../simpleElements/DrawDot";
 import DrawBox from "../simpleElements/DrawBox";
 import TableElement from "../TableElement";
 
-const SNAP_TOLERANCE = 5;
+const SNAP_TOLERANCE = 3;
 const SNAP_TOLERANCE_BETWEEN = 50;
 
 function PdfPage({ widthMm, heightMm }) {
@@ -68,7 +68,8 @@ function PdfPage({ widthMm, heightMm }) {
             (item) => item.trangThai
         );
 
-        const textWidth = getTextWidth(currentElement.text) + 10;
+        
+        const textWidth = getTextWidth(currentElement.noiDung,`${currentElement.fontSize}px Arial`) + 10;
         const offset = currentElement.stt ? 30 : 0;
         const centerText = (textWidth + offset) / 2;
         
@@ -159,7 +160,7 @@ function PdfPage({ widthMm, heightMm }) {
                             const startX =
                                 item.x +
                                 getTextWidth(item.noiDung) +
-                                10 +
+                                20 +
                                 (haveStt ? 30 : 0);
                             const endX = next
                                 ? next.x - 10

@@ -16,7 +16,7 @@ import { cmToPx } from "../../Helpers/unitConverter";
 
 function CheckboxTooltip({ children, id }) {
     const [widthDot, setWidthDot] = useState(0);
-    const [widthBoxs, setWidthBoxs] = useState('');
+    const [widthBoxs, setWidthBoxs] = useState("");
     const elements = useSelector((state) => state.data.elements);
     const selectedElement = elements.find((el) => el.idThuocTinh === id);
 
@@ -30,7 +30,7 @@ function CheckboxTooltip({ children, id }) {
     const handleChangeBoxs = (width, id) => {
         setWidthBoxs(width);
         dispatch(setWidthBoxsItem({ width: width, id: id }));
-    }
+    };
 
     const tooltipContent = (
         <div className={`p-2 text-sm`}>
@@ -56,7 +56,7 @@ function CheckboxTooltip({ children, id }) {
                         <TextInput
                             className="ps-1 w-[3rem]"
                             text={widthDot}
-                            id={selectedElement.id}
+                            id={selectedElement.idThuocTinh}
                             onChange={handleChangeDot}
                             placeholder="Nhập kích thước... "
                         />
@@ -65,13 +65,13 @@ function CheckboxTooltip({ children, id }) {
                 )}
             </div>
             <label className="flex items-center gap-2 mt-1">
-                    <input
-                        type="checkbox"
-                        checked={selectedElement.stt}
-                        onChange={() => dispatch(toggleStt(id))}
-                    />
-                    Bật/tắt số thứ tự
-                </label>
+                <input
+                    type="checkbox"
+                    checked={selectedElement.stt}
+                    onChange={() => dispatch(toggleStt(id))}
+                />
+                Bật/tắt số thứ tự
+            </label>
             <div className="flex gap-2 mt-2">
                 <label className="flex items-center gap-2 mt-1">
                     <input
