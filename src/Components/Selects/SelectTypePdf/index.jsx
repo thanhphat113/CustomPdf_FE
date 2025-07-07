@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Select from "react-select";
 import axiosInstance from "../../../AxiosInstance";
 import { useDispatch } from "react-redux";
-import { getAllPdfs } from "../../../redux/Actions/DataAction";
+import { getAllElementsOfPdf } from "../../../redux/Actions/DataAction";
 
 const options = [
     { value: 1, label: "Option A" },
@@ -14,7 +14,7 @@ function SelectTypePdf() {
     const dispatch = useDispatch()
 
     const handleChangeOption = async (id) => {
-        await dispatch(getAllPdfs(id))
+        await dispatch(getAllElementsOfPdf(id))
     }
 
     useEffect(() => {

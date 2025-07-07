@@ -1,8 +1,9 @@
 import Draggable from "react-draggable";
-import CheckboxTooltip from "../Tooltips";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { changeWidth } from "../../redux/Slices/DataSlice";
+import { ptToPx } from "../../Helpers/unitConverter";
+import CustomTextTooltip from "../Tooltips/CustomTextTooltip";
 
 function SimpleElements({ item, elementsWithSTT, handleStop, handleDrag }) {
     const boxRef = useRef(null);
@@ -33,26 +34,42 @@ function SimpleElements({ item, elementsWithSTT, handleStop, handleDrag }) {
             handle=".handle"
         >
             <div className="absolute select-none">
-                <CheckboxTooltip id={item.idThuocTinh}>
-                    <div
-                        ref={boxRef}
-                        onMouseDown={(e) => {
-                            if (e.target.classList.contains("resize-x")) {
-                                setResizing(true);
-                            }
-                        }}
-                        className="resize-x p-2 w-[8rem]  hover:border-black border-transparent border border-dotted overflow-auto cursor-move"
-                        style={{ width: item.rong }}
+                {item.tenLoai === "title" ? (
+                    <span
+                        style={{ fontSize: item.fontSize }}
+                        className="handle block w-full h-full font-bold uppercase"
                     >
-                        {item.tenLoai === "title" ? (
+                        {item.noiDung}
+                    </span>
+                ) : (
+                    <CustomTextTooltip id={item.idThuocTinh}>
+                        <div
+                            ref={boxRef}
+                            onMouseDown={(e) => {
+                                if (e.target.classList.contains("resize-x")) {
+                                    setResizing(true);
+                                }
+                            }}
+                            className="resize-x p-2 w-[8rem]  hover:border-black border-transparent border border-dotted overflow-auto cursor-move"
+                            style={{ width: item.rong }}
+                        >
                             <span
-                                style={{ fontSize: item.fontSize }}
-                                className="handle block w-full h-full font-bold uppercase"
+                                style={{
+                                    fontWeight: item.inDam ? "bold" : "normal",
+                                    fontStyle: item.nghieng
+                                        ? "italic"
+                                        : "normal",
+                                    textDecoration: item.gachChan
+                                        ? "underline"
+                                        : "none",
+                                    fontSize: ptToPx(item.fontSize),
+                                    textTransform: item.upperCase
+                                        ? "uppercase"
+                                        : "none",
+                                    color: item.mau
+                                }}
+                                className="handle whitespace-nowrap "
                             >
-                                {item.noiDung}
-                            </span>
-                        ) : (
-                            <span className="handle whitespace-nowrap ">
                                 {(() => {
                                     {
                                         /* if (item.tenLoai === "title") */
@@ -69,9 +86,9 @@ function SimpleElements({ item, elementsWithSTT, handleStop, handleDrag }) {
                                 })()}{" "}
                                 {item.noiDung}:
                             </span>
-                        )}
-                    </div>
-                </CheckboxTooltip>
+                        </div>
+                    </CustomTextTooltip>
+                )}
             </div>
         </Draggable>
     );

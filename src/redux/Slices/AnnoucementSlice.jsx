@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllPdfs, saveAllPdfs } from "../Actions/DataAction";
+import { getAllElementsOfPdf, saveAllElements, savePdfSize } from "../Actions/DataAction";
 
 const AnnouncementSlice = createSlice({
     name: "announcement",
@@ -16,41 +16,64 @@ const AnnouncementSlice = createSlice({
             state.isSuccess = false;
             state.message = "";
         },
+        setAnnouncement: (state, action) => {
+            const { message } = action.payload;
+            state.message = message;
+        },
     },
     extraReducers: (builder) => {
         builder
-            .addCase(getAllPdfs.pending, (state) => {
+            .addCase(getAllElementsOfPdf.pending, (state) => {
                 state.isLoading = true;
                 state.isError = false;
                 state.isSuccess = false;
             })
-            .addCase(getAllPdfs.fulfilled, (state, action) => {
+            .addCase(getAllElementsOfPdf.fulfilled, (state, action) => {
                 const { message } = action.payload;
                 state.isLoading = false;
                 state.isError = false;
                 state.isSuccess = true;
                 state.message = message;
             })
-            .addCase(getAllPdfs.rejected, (state, action) => {
+            .addCase(getAllElementsOfPdf.rejected, (state, action) => {
                 const { message } = action.payload;
                 state.isLoading = false;
                 state.isError = true;
                 state.isSuccess = false;
                 state.message = message;
             })
-        .addCase(saveAllPdfs.pending, (state) => {
+            .addCase(saveAllElements.pending, (state) => {
                 state.isLoading = true;
                 state.isError = false;
                 state.isSuccess = false;
             })
-            .addCase(saveAllPdfs.fulfilled, (state, action) => {
+            .addCase(saveAllElements.fulfilled, (state, action) => {
                 const { message } = action.payload;
                 state.isLoading = false;
                 state.isError = false;
                 state.isSuccess = true;
                 state.message = message;
             })
-            .addCase(saveAllPdfs.rejected, (state, action) => {
+            .addCase(saveAllElements.rejected, (state, action) => {
+                const { message } = action.payload;
+                state.isLoading = false;
+                state.isError = true;
+                state.isSuccess = false;
+                state.message = message;
+            })
+            .addCase(savePdfSize.pending, (state) => {
+                state.isLoading = true;
+                state.isError = false;
+                state.isSuccess = false;
+            })
+            .addCase(savePdfSize.fulfilled, (state, action) => {
+                const { message } = action.payload;
+                state.isLoading = false;
+                state.isError = false;
+                state.isSuccess = true;
+                state.message = message;
+            })
+            .addCase(savePdfSize.rejected, (state, action) => {
                 const { message } = action.payload;
                 state.isLoading = false;
                 state.isError = true;
@@ -60,7 +83,6 @@ const AnnouncementSlice = createSlice({
     },
 });
 
-export const {
-    acceptAnnouncement
-} = AnnouncementSlice.actions;
+export const { acceptAnnouncement, setAnnouncement } =
+    AnnouncementSlice.actions;
 export default AnnouncementSlice.reducer;

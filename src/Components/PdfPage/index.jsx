@@ -1,5 +1,5 @@
 import { GroupByY } from "../../Helpers/GroupByY";
-import { mmToPx, cmToPx } from "../../Helpers/unitConverter";
+import { mmToPx, cmToPx, ptToPx } from "../../Helpers/unitConverter";
 import { getTextWidth } from "../../Helpers/GetTextWidth";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,7 +42,7 @@ function PdfPage({ widthMm, heightMm }) {
     const handleStop = (id) => {
         const flatElements = simpleElements.flat();
         const { x, y } = positionsRef.current[id];
-        console.log("Đây là: ",positionsRef.current[id])
+        console.log("Đây là: ", positionsRef.current[id]);
 
         setGuides({ x: null, y: null });
         dispatch(moveElement({ flatElements, id, snapS: x, snapT: y }));
@@ -55,7 +55,7 @@ function PdfPage({ widthMm, heightMm }) {
         dispatch(moveTable({ id, snapT: y }));
     };
 
-    const handleDrag = ( e, data, currentElement) => {
+    const handleDrag = (e, data, currentElement) => {
         let snapX = data.x;
         let snapY = data.y;
 
@@ -64,21 +64,22 @@ function PdfPage({ widthMm, heightMm }) {
 
         const flatElements = simpleElements.flat();
 
-        const elementActive = flatElements.filter(
-            (item) => item.trangThai
-        );
+        const elementActive = flatElements.filter((item) => item.trangThai);
 
-        
-        const textWidth = getTextWidth(currentElement.noiDung,`${currentElement.fontSize}px Arial`) + 10;
+        const textWidth =
+            getTextWidth(
+                currentElement.noiDung,
+                ptToPx(currentElement.fontSize)
+            ) + 10;
         const offset = currentElement.stt ? 30 : 0;
         const centerText = (textWidth + offset) / 2;
-        
+
         const centerElement = data.x + centerText;
         const centerContext = pdfRef.current.offsetWidth / 2;
 
         if (Math.abs(centerElement - centerContext) < SNAP_TOLERANCE) {
-            snapX = centerContext - centerText
-            guideX = centerContext ;
+            snapX = centerContext - centerText;
+            guideX = centerContext;
         }
 
         for (const item of elementActive) {
@@ -89,21 +90,44 @@ function PdfPage({ widthMm, heightMm }) {
                 guideX = item.x;
             }
 
-            if (Math.abs((data.x + getTextWidth(`${currentElement.noiDung}:`)) - (item.x + getTextWidth(`${item.noiDung}:`))) < SNAP_TOLERANCE) {
-                snapX = item.x + getTextWidth(`${item.noiDung}:`) - getTextWidth(`${currentElement.noiDung}:`);
-                guideX = item.x + getTextWidth(`${item.noiDung}:`);
+            if (
+                Math.abs(
+                    data.x +
+                        getTextWidth(
+                            `${currentElement.noiDung}:`,
+                            ptToPx(item.fontSize)
+                        ) -
+                        (item.x +
+                            getTextWidth(
+                                `${item.noiDung}:`,
+                                ptToPx(item.fontSize)
+                            ))
+                ) < SNAP_TOLERANCE
+            ) {
+                snapX =
+                    item.x +
+                    getTextWidth(`${item.noiDung}:`, ptToPx(item.fontSize)) -
+                    getTextWidth(
+                        `${currentElement.noiDung}:`,
+                        ptToPx(item.fontSize)
+                    );
+                guideX =
+                    item.x +
+                    getTextWidth(`${item.noiDung}:`, ptToPx(item.fontSize));
             }
 
             if (Math.abs(data.y - item.y) < SNAP_TOLERANCE) {
                 snapY = item.y;
                 guideY = item.y + 25;
             }
-
         }
 
         setGuides({ x: guideX, y: guideY });
-        positionsRef.current[currentElement.idThuocTinh] = { x: snapX, y: snapY };
-        console.log(positionsRef.current[currentElement.idThuocTinh])
+        positionsRef.current[currentElement.idThuocTinh] = {
+            x: snapX,
+            y: snapY,
+        };
+        console.log(positionsRef.current[currentElement.idThuocTinh]);
     };
 
     return (
@@ -159,7 +183,10 @@ function PdfPage({ widthMm, heightMm }) {
 
                             const startX =
                                 item.x +
-                                getTextWidth(item.noiDung) +
+                                getTextWidth(
+                                    item.noiDung,
+                                    ptToPx(item.fontSize)
+                                ) +
                                 20 +
                                 (haveStt ? 30 : 0);
                             const endX = next
@@ -182,7 +209,12 @@ function PdfPage({ widthMm, heightMm }) {
                             if (!item.trangThai) return null;
 
                             const startX =
-                                item.x + getTextWidth(item.noiDung) + 20;
+                                item.x +
+                                getTextWidth(
+                                    item.noiDung,
+                                    ptToPx(item.fontSize)
+                                ) +
+                                20;
 
                             if (!item.box.visible) return;
 

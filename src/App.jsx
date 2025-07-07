@@ -4,24 +4,51 @@ import PdfPage from "./Components/pdfPage";
 import SelectTypePdf from "./Components/Selects/SelectTypePdf";
 import ElementsList from "./Components/ElementsList";
 import { useDispatch, useSelector } from "react-redux";
-import { saveAllPdfs } from "./redux/Actions/DataAction";
+import { saveAllElements, savePdfSize } from "./redux/Actions/DataAction";
 import Announcement from "./Components/Announcement";
 import { AnimatePresence } from "framer-motion";
+import Button from "./Components/Button";
+import DropdownButton from "./Components/Button/DropdownButton";
+import { setWidthPdf,setHeightPdf } from "./redux/Slices/DataSlice";
 
 function App() {
-    const pdf = useSelector((state) => state.data.pdf);
+    const {elements, pdf } = useSelector((state) => state.data);
     const [widthMm, setWidthMm] = useState(pdf?.rong || 210);
     const [heightMm, setHeightMm] = useState(pdf?.dai || 297);
 
+    useEffect(() => {
+        dispatch(setWidthPdf(widthMm))
+    },[widthMm])
+
+    useEffect(() => {
+        dispatch(setHeightPdf(widthMm))
+    },[heightMm])
+
     const dispatch = useDispatch();
-    const elements = useSelector((state) => state.data.elements);
     const { isLoading, isSuccess, message } = useSelector(
         (state) => state.announcement
     );
 
-    const saveAllElements = async (elements) => {
-        await dispatch(saveAllPdfs(elements));
+    const saveElements = async () => {
+        await dispatch(saveAllElements(elements));
     };
+
+    const savePdf = async () => {
+        await dispatch(savePdfSize(pdf));
+    };
+
+    const Actions = [
+        {
+            text: "Lưu vị trí các thuộc tính",
+            className: "px-1 border-b text-left hover:bg-gray-200",
+            action: () => saveElements(),
+        },
+        {
+            text: "Lưu kích thước pdf",
+            className: "px-1 text-left hover:bg-gray-200",
+            action: () => savePdf(),
+        },
+    ];
 
     return (
         <div className="flex">
@@ -53,11 +80,17 @@ function App() {
                 </div>
                 <SelectTypePdf></SelectTypePdf>
                 <ElementsList />
-                <div className="flex flex-1">
-                    <button onClick={() => saveAllElements(elements)}>
-                        Lưu mẫu
-                    </button>
-                    <button>Đổ dữ liệu</button>
+                <div className="flex gap-2">
+                    <Button
+                        text={"Gọi dữ liệu"}
+                        className={"rounded px-1 border text-xl"}
+                    ></Button>
+
+                    <DropdownButton
+                        Actions={Actions}
+                        text={"Lưu"}
+                        className={"px-1 border text-xl rounded"}
+                    />
                 </div>
             </aside>
             <div className="bg-[#808080] flex-1 h-screen justify-center overflow-auto">

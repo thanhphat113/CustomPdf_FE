@@ -1,12 +1,14 @@
 import { arrayMove } from "@dnd-kit/sortable";
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllPdfs, saveAllPdfs } from "../Actions/DataAction";
+import { getAllElementsOfPdf, saveAllElements, savePdfSize } from "../Actions/DataAction";
 
 const dataSlice = createSlice({
     name: "data",
     initialState: {
         pdf: null,
+        currentPdfValue: null,
         elements: [],
+        currentElementsValue: []
     },
     reducers: {
         toggleElement: (state, action) => {
@@ -60,6 +62,70 @@ const dataSlice = createSlice({
                 element.stt = !element.stt;
             }
         },
+        toggleBold: (state, action) => {
+            const element = state.elements.find(
+                (el) => el.idThuocTinh === action.payload
+            );
+            if (element) {
+                element.inDam = !element.inDam;
+            }
+        },
+        toggleItalic: (state, action) => {
+            const element = state.elements.find(
+                (el) => el.idThuocTinh === action.payload
+            );
+            if (element) {
+                element.nghieng = !element.nghieng;
+            }
+        },
+        toggleUnderline: (state, action) => {
+            const element = state.elements.find(
+                (el) => el.idThuocTinh === action.payload
+            );
+            if (element) {
+                element.gachChan = !element.gachChan;
+            }
+        },
+        toggleUpperCase: (state, action) => {
+            const element = state.elements.find(
+                (el) => el.idThuocTinh === action.payload
+            );
+            if (element) {
+                element.upperCase = !element.upperCase;
+            }
+        },
+        toggleBoldGiaTri: (state, action) => {
+            const element = state.elements.find(
+                (el) => el.idThuocTinh === action.payload
+            );
+            if (element) {
+                element.inDamGiaTri = !element.inDamGiaTri;
+            }
+        },
+        toggleItalicGiaTri: (state, action) => {
+            const element = state.elements.find(
+                (el) => el.idThuocTinh === action.payload
+            );
+            if (element) {
+                element.inNghiengGiaTri = !element.inNghiengGiaTri;
+            }
+        },
+        toggleUnderlineGiaTri: (state, action) => {
+            const element = state.elements.find(
+                (el) => el.idThuocTinh === action.payload
+            );
+            if (element) {
+                element.gachChanGiaTri = !element.gachChanGiaTri;
+            }
+        },
+        toggleUpperCaseGiaTri: (state, action) => {
+            const element = state.elements.find(
+                (el) => el.idThuocTinh === action.payload
+            );
+            if (element) {
+                element.upperCaseGiaTri = !element.upperCaseGiaTri;
+            }
+        },
         setWidthDotItem: (state, action) => {
             const { id, width } = action.payload;
             const element = state.elements.find((el) => el.idThuocTinh === id);
@@ -70,9 +136,22 @@ const dataSlice = createSlice({
         changeWidth: (state, action) => {
             const { id, width } = action.payload;
             const element = state.elements.find((el) => el.idThuocTinh === id);
-            console.log(element)
             if (element) {
                 element.rong = width;
+            }
+        },
+        changeColor: (state, action) => {
+            const { id, color } = action.payload;
+            const element = state.elements.find((el) => el.idThuocTinh === id);
+            if (element) {
+                element.mau = color;
+            }
+        },
+        changeColorGiaTri: (state, action) => {
+            const { id, color } = action.payload;
+            const element = state.elements.find((el) => el.idThuocTinh === id);
+            if (element) {
+                element.mauGiaTri = color;
             }
         },
         setWidthBoxsItem: (state, action) => {
@@ -95,21 +174,42 @@ const dataSlice = createSlice({
                 item.idThuocTinh === id ? { ...item, y: snapT } : item
             );
         },
+
+        changeFontSize: (state, action) => {
+            const { id, fontSize } = action.payload;
+            const element = state.elements.find((el) => el.idThuocTinh === id);
+            if (element) {
+                element.fontSize = fontSize;
+            }
+        },
+        changeFontSizeGiaTri: (state, action) => {
+            const { id, fontSize } = action.payload;
+            const element = state.elements.find((el) => el.idThuocTinh === id);
+            if (element) {
+                element.fontSizeGiaTri = fontSize;
+            }
+        },
+        setWidthPdf: (state, action) => {
+            if (state.pdf) state.pdf.rong = action.payload
+        },
+        setHeightPdf: (state, action) => {
+            if (state.pdf) state.pdf.dai = action.payload
+        }
     },
     extraReducers: (builder) => {
         builder
-            .addCase(getAllPdfs.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(getAllPdfs.fulfilled, (state, action) => {
+            .addCase(getAllElementsOfPdf.fulfilled, (state, action) => {
                 const { data } = action.payload
                 state.pdf = data.pdf
                 state.elements = data.elements
+                state.currentPdfValue = data.pdf
+                state.currentElementsValue = data.elements
             })
-            .addCase(getAllPdfs.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
+            .addCase(saveAllElements.fulfilled, (state, action) => {
+                state.currentElementsValue = state.elements
+            })
+            .addCase(savePdfSize.fulfilled, (state, action) => {
+                state.currentPdfValue = state.pdf
             });
     },
 });
@@ -124,6 +224,20 @@ export const {
     changeWidth,
     setWidthDotItem,
     moveCol,
+    toggleBold,
+    toggleItalic,
+    toggleUnderline,
+    toggleUpperCase,
+    changeColor,
+    toggleBoldGiaTri,
+    toggleItalicGiaTri,
+    toggleUnderlineGiaTri,
+    toggleUpperCaseGiaTri,
+    changeColorGiaTri,
+    changeFontSize,
+    changeFontSizeGiaTri,
     moveTable,
+    setWidthPdf,
+    setHeightPdf
 } = dataSlice.actions;
 export default dataSlice.reducer;
