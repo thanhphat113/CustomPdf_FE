@@ -10,10 +10,11 @@ import DrawDot from "../simpleElements/DrawDot";
 import DrawBox from "../simpleElements/DrawBox";
 import TableElement from "../TableElement";
 
+
 const SNAP_TOLERANCE = 3;
 const SNAP_TOLERANCE_BETWEEN = 50;
 
-function PdfPage({ widthMm, heightMm }) {
+function PdfPage({ widthMm, heightMm,divRef }) {
     const widthPx = mmToPx(widthMm);
     const heightPx = mmToPx(heightMm);
 
@@ -42,7 +43,6 @@ function PdfPage({ widthMm, heightMm }) {
     const handleStop = (id) => {
         const flatElements = simpleElements.flat();
         const { x, y } = positionsRef.current[id];
-        console.log("Đây là: ", positionsRef.current[id]);
 
         setGuides({ x: null, y: null });
         dispatch(moveElement({ flatElements, id, snapS: x, snapT: y }));
@@ -128,17 +128,18 @@ function PdfPage({ widthMm, heightMm }) {
             y: snapY,
         };
         console.log(positionsRef.current[currentElement.idThuocTinh]);
-    };
+    }; 
 
     return (
         <div
             id="pdfContext"
+            ref={divRef}
             style={{
                 width: `${widthPx}px`,
                 height: `${heightPx}px`,
                 padding: `${cmToPx(1)}px`,
             }}
-            className="bg-white my-6 shadow-[0_0_15px_rgba(0,0,0,0.3)] mx-auto"
+            className="bg-white my-6 overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.3)] mx-auto"
         >
             <div ref={pdfRef} className="relative w-full h-full">
                 {guides.x !== null && guides.x !== 0 && (

@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Input from "./Components/Inputs/TextInput";
-import PdfPage from "./Components/pdfPage";
 import SelectTypePdf from "./Components/Selects/SelectTypePdf";
 import ElementsList from "./Components/ElementsList";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,25 +8,51 @@ import Announcement from "./Components/Announcement";
 import { AnimatePresence } from "framer-motion";
 import Button from "./Components/Button";
 import DropdownButton from "./Components/Button/DropdownButton";
-import { setWidthPdf,setHeightPdf } from "./redux/Slices/DataSlice";
+import { setWidthPdf, setHeightPdf } from "./redux/Slices/DataSlice";
+
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import PdfPage from "./Components/PdfPage";
 
 function App() {
-    const {elements, pdf } = useSelector((state) => state.data);
+    const { elements, pdf } = useSelector((state) => state.data);
     const [widthMm, setWidthMm] = useState(pdf?.rong || 210);
     const [heightMm, setHeightMm] = useState(pdf?.dai || 297);
 
     useEffect(() => {
-        dispatch(setWidthPdf(widthMm))
-    },[widthMm])
+        dispatch(setWidthPdf(widthMm));
+    }, [widthMm]);
 
     useEffect(() => {
-        dispatch(setHeightPdf(widthMm))
-    },[heightMm])
+        dispatch(setHeightPdf(widthMm));
+    }, [heightMm]);
 
     const dispatch = useDispatch();
     const { isLoading, isSuccess, message } = useSelector(
         (state) => state.announcement
     );
+
+    const divRef = useRef();
+
+    const exportToPDF = async () => {
+        const element = divRef.current;
+        console.log(element)
+        const canvas = await html2canvas(element);
+        const imgData = canvas.toDataURL("image/png");
+
+        const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "mm",
+            format: "a4",
+        });
+
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.save("download.pdf");
+    };
 
     const saveElements = async () => {
         await dispatch(saveAllElements(elements));
@@ -84,6 +109,7 @@ function App() {
                     <Button
                         text={"Gọi dữ liệu"}
                         className={"rounded px-1 border text-xl"}
+                        action={exportToPDF}
                     ></Button>
 
                     <DropdownButton
@@ -94,7 +120,11 @@ function App() {
                 </div>
             </aside>
             <div className="bg-[#808080] flex-1 h-screen justify-center overflow-auto">
-                <PdfPage widthMm={widthMm} heightMm={heightMm}></PdfPage>
+                <PdfPage
+                    divRef={divRef}
+                    widthMm={widthMm}
+                    heightMm={heightMm}
+                ></PdfPage>
             </div>
         </div>
     );

@@ -5,12 +5,14 @@ import "./index.css";
 import { Provider } from "react-redux";
 import { store } from "./redux/store.jsx";
 // import TableDndKit from "./Test.jsx";
-import TableWithColspanDrag from "./Test.jsx";
+import Pdf from "./Pdf.jsx";
+
 
 createRoot(document.getElementById("root")).render(
     <StrictMode>
         <Provider store={store}>
             <App />
+            <Pdf />
         </Provider>
     </StrictMode>
 );
