@@ -10,8 +10,6 @@ import Button from "./Components/Button";
 import DropdownButton from "./Components/Button/DropdownButton";
 import { setWidthPdf, setHeightPdf } from "./redux/Slices/DataSlice";
 
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import PdfPage from "./Components/PdfPage";
 
 function App() {
@@ -31,28 +29,6 @@ function App() {
     const { isLoading, isSuccess, message } = useSelector(
         (state) => state.announcement
     );
-
-    const divRef = useRef();
-
-    const exportToPDF = async () => {
-        const element = divRef.current;
-        console.log(element)
-        const canvas = await html2canvas(element);
-        const imgData = canvas.toDataURL("image/png");
-
-        const pdf = new jsPDF({
-            orientation: "portrait",
-            unit: "mm",
-            format: "a4",
-        });
-
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-        pdf.save("download.pdf");
-    };
 
     const saveElements = async () => {
         await dispatch(saveAllElements(elements));
@@ -109,7 +85,6 @@ function App() {
                     <Button
                         text={"Gọi dữ liệu"}
                         className={"rounded px-1 border text-xl"}
-                        action={exportToPDF}
                     ></Button>
 
                     <DropdownButton
@@ -121,7 +96,7 @@ function App() {
             </aside>
             <div className="bg-[#808080] flex-1 h-screen justify-center overflow-auto">
                 <PdfPage
-                    divRef={divRef}
+                    // divRef={divRef}
                     widthMm={widthMm}
                     heightMm={heightMm}
                 ></PdfPage>
