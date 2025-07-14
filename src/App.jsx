@@ -13,7 +13,7 @@ import { setWidthPdf, setHeightPdf } from "./redux/Slices/DataSlice";
 import PdfPage from "./Components/PdfPage";
 
 function App() {
-    const { elements, pdf } = useSelector((state) => state.data);
+    const { elements, pdf, tables } = useSelector((state) => state.data);
     const [widthMm, setWidthMm] = useState(pdf?.rong || 210);
     const [heightMm, setHeightMm] = useState(pdf?.dai || 297);
 
@@ -31,7 +31,7 @@ function App() {
     );
 
     const saveElements = async () => {
-        await dispatch(saveAllElements(elements));
+        await dispatch(saveAllElements({elements,tables}));
     };
 
     const savePdf = async () => {

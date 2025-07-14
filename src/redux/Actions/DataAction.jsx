@@ -17,12 +17,14 @@ export const getAllElementsOfPdf = createAsyncThunk(
 
 export const saveAllElements = createAsyncThunk(
     "pdf/saveElements", // Tên action
-    async (elements, thunkAPI) => {
+    async (items, thunkAPI) => {
         try {
+            console.log(items)
             const state = thunkAPI.getState();
             const currentElements = state.data.currentElementsValue;
+            const currentTables = state.data.currentTablesValue;
 
-            const isEqual = _.isEqual(elements, currentElements);
+            const isEqual = _.isEqual(items.elements, currentElements);
             if (isEqual)
                 thunkAPI.dispatch(
                     setAnnouncement({
@@ -32,7 +34,7 @@ export const saveAllElements = createAsyncThunk(
             else {
                 const response = await axiosInstance.put(
                     "/api/ThuocTinh/Save",
-                    elements
+                    items
                 );
                 return response.data;
             }

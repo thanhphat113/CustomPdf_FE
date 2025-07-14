@@ -10,14 +10,16 @@ import {
     horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useDispatch } from "react-redux";
-import { moveCol } from "../../redux/Slices/DataSlice";
+import { moveCol, movePositionCol } from "../../redux/Slices/DataSlice";
 import Draggable from "react-draggable";
 import SortableColumn from "./SortableColumn";
 import { GroupCol } from "../../Helpers/GroupCol";
+import { useEffect, useRef } from "react";
 
-function TableElement({ table, handleDrag, handleStop }) {
-    const tableAfterChange = GroupCol(table.columns);
+function TableElement({ table, handleDrag, handleStop, refParent }) {
+    // const tableAfterChange = GroupCol(table.columns);
 
+    const positionRef = useRef([]);
     const dispatch = useDispatch();
     const sensors = useSensors(useSensor(PointerSensor));
 
@@ -25,8 +27,21 @@ function TableElement({ table, handleDrag, handleStop }) {
         const { active, over } = e;
         if (!over) return;
 
-        dispatch(moveCol({ id: table.id, active, over }));
+        dispatch(moveCol({ id: table.idThuocTinh, active, over }));
     };
+
+    useEffect(() => {
+        positionRef.current = table.cots;
+        console.log(positionRef.current)
+
+        // console.log(positionRef.current.map(item => ({...item, x : item.})))
+    }, [table.cots]);
+
+    const handlePositionChange = (idCot, rectChild) => {
+            const rect = refParent.current.getBoundingClientRect()
+            dispatch(movePositionCol({id: table.idThuocTinh,position: {x:rectChild.x - rect.x , y:rectChild.y- rect.y, rong: rectChild.width },idCot}))
+};
+
 
     return (
         <DndContext
@@ -35,8 +50,8 @@ function TableElement({ table, handleDrag, handleStop }) {
             onDragEnd={handleDragEnd}
         >
             <Draggable
-                onStop={() => handleStop(table.id)}
-                onDrag={(e, data) => handleDrag(table.id, e, data)}
+                onStop={() => handleStop(table.idThuocTinh)}
+                onDrag={(e, data) => handleDrag(e, data, table.idThuocTinh)}
                 position={{ x: table.x, y: table.y }}
                 bounds="parent"
                 handle=".handle"
@@ -50,38 +65,19 @@ function TableElement({ table, handleDrag, handleStop }) {
                         <tr className="border text-center">
                             <SortableContext
                                 strategy={horizontalListSortingStrategy}
-                                items={tableAfterChange.parents.map(
-                                    (col) => col.colId
+                                items={Array.from(table.cots).map(
+                                    (col) => col.idCot
                                 )}
                             >
-                                {tableAfterChange.parents.map((item, idx) => (
-                                    <SortableColumn col={item} key={idx} />
+                                {table.cots.map((item) => (
+                                    <SortableColumn
+                                        onPositionChange={handlePositionChange}
+                                        col={item}
+                                        key={item.idCot}
+                                    />
                                 ))}
                             </SortableContext>
                         </tr>
-
-                        {tableAfterChange.childs && (
-                            <tr className="border text-center">
-                                    {tableAfterChange.childs.map(
-                                        (item, idx) => (
-                                            <th
-                                                key={idx}
-                                                className="border"
-                                            >{item.tenCot}</th>
-                                        )
-                                    )}
-                            </tr>
-                        )}
-                        {/* <tr className="border text-center">
-                            <SortableContext
-                                strategy={horizontalListSortingStrategy}
-                                items={table.columns.map((col) => col.colId)}
-                            >
-                                {table.columns.map((col, idx) => (
-                                    <SortableColumn col={col} key={idx} />
-                                ))}
-                            </SortableContext>
-                        </tr> */}
                     </thead>
                 </table>
             </Draggable>

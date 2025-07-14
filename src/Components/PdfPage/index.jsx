@@ -14,13 +14,13 @@ import TableElement from "../TableElement";
 const SNAP_TOLERANCE = 3;
 const SNAP_TOLERANCE_BETWEEN = 50;
 
-function PdfPage({ widthMm, heightMm,divRef }) {
+function PdfPage({ widthMm, heightMm }) {
     const widthPx = mmToPx(widthMm);
     const heightPx = mmToPx(heightMm);
 
-    const data = useSelector((state) => state.data.elements);
+    const {elements, tables} = useSelector((state) => state.data);
 
-    const tableElements = data.filter((e) => e.type === "table");
+    // const tableElements = data.filter((e) => e.type === "table");
 
     const dispatch = useDispatch();
     const [simpleElements, setSimpleElements] = useState([]);
@@ -31,14 +31,13 @@ function PdfPage({ widthMm, heightMm,divRef }) {
     const positionsRef = useRef({});
 
     useEffect(() => {
-        setSimpleElements(GroupByY(data.filter((e) => e.type !== "table")));
-        setElementsWithSTT(SetSTT(data));
+        setSimpleElements(GroupByY(elements));
+        setElementsWithSTT(SetSTT(elements));
 
-        data.forEach((item) => {
+        elements.forEach((item) => {
             positionsRef.current[item.id] = { x: item.x, y: item.y };
         });
-        console.log(positionsRef);
-    }, [data]);
+    }, [elements]);
 
     const handleStop = (id) => {
         const flatElements = simpleElements.flat();
@@ -49,10 +48,19 @@ function PdfPage({ widthMm, heightMm,divRef }) {
     };
 
     const handleStopTable = (id) => {
-        const { y } = positionsRef.current[id];
+        // console.log(positionsRef.current)
 
+        const { y } = positionsRef.current[id];
         setGuides({ x: null, y: null });
         dispatch(moveTable({ id, snapT: y }));
+    };
+
+    const handleDragTable = (e, data, currentTable) => {
+        let snapY = data.y;
+
+        positionsRef.current[currentTable] = {
+            y: snapY,
+        };
     };
 
     const handleDrag = (e, data, currentElement) => {
@@ -127,13 +135,11 @@ function PdfPage({ widthMm, heightMm,divRef }) {
             x: snapX,
             y: snapY,
         };
-        console.log(positionsRef.current[currentElement.idThuocTinh]);
     }; 
 
     return (
         <div
             id="pdfContext"
-            ref={divRef}
             style={{
                 width: `${widthPx}px`,
                 height: `${heightPx}px`,
@@ -229,13 +235,14 @@ function PdfPage({ widthMm, heightMm,divRef }) {
                         })}
                     </>
                 ))}
-                {tableElements &&
-                    tableElements.map((item) => (
+                {tables &&
+                    tables.map((item) => (
                         <TableElement
                             handleStop={handleStopTable}
-                            handleDrag={handleDrag}
+                            handleDrag={handleDragTable}
                             key={item.idThuocTinh}
                             table={item}
+                            refParent = {pdfRef}
                         ></TableElement>
                     ))}
             </div>

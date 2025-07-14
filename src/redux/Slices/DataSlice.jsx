@@ -1,6 +1,10 @@
 import { arrayMove } from "@dnd-kit/sortable";
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllElementsOfPdf, saveAllElements, savePdfSize } from "../Actions/DataAction";
+import {
+    getAllElementsOfPdf,
+    saveAllElements,
+    savePdfSize,
+} from "../Actions/DataAction";
 
 const dataSlice = createSlice({
     name: "data",
@@ -8,7 +12,9 @@ const dataSlice = createSlice({
         pdf: null,
         currentPdfValue: null,
         elements: [],
-        currentElementsValue: []
+        currentElementsValue: [],
+        tables: [],
+        currentTables: [],
     },
     reducers: {
         toggleElement: (state, action) => {
@@ -40,19 +46,30 @@ const dataSlice = createSlice({
         moveCol: (state, action) => {
             const { id, active, over } = action.payload;
 
-            const element = state.elements.find((el) => el.idThuocTinh === id);
+            const element = state.tables.find((el) => el.idThuocTinh === id);
             if (!element || !over) return;
 
-            const oldIndex = element.columns.findIndex(
-                (col) => col.colId === active.id
+            const oldIndex = element.cots.findIndex(
+                (col) => col.idCot === active.id
             );
-            const newIndex = element.columns.findIndex(
-                (col) => col.colId === over.id
+            const newIndex = element.cots.findIndex(
+                (col) => col.idCot === over.id
             );
 
             if (oldIndex === -1 || newIndex === -1) return;
 
-            element.columns = arrayMove(element.columns, oldIndex, newIndex);
+            element.cots = arrayMove(element.cots, oldIndex, newIndex);
+        },
+        movePositionCol: (state, action) => {
+            const { id, idCot, position } = action.payload;
+            console.log(id, idCot, position);
+
+            const table = state.tables.find((el) => el.idThuocTinh === id);
+            const col = table.cots.find((el) => el.idCot === idCot);
+            
+            col.x = position.x
+            col.y = position.y
+            col.rong = position.rong
         },
         toggleStt: (state, action) => {
             const element = state.elements.find(
@@ -169,8 +186,9 @@ const dataSlice = createSlice({
             );
         },
         moveTable: (state, action) => {
+            console.log(action.payload);
             const { id, snapT } = action.payload;
-            state.elements = state.elements.map((item) =>
+            state.tables = state.tables.map((item) =>
                 item.idThuocTinh === id ? { ...item, y: snapT } : item
             );
         },
@@ -190,26 +208,28 @@ const dataSlice = createSlice({
             }
         },
         setWidthPdf: (state, action) => {
-            if (state.pdf) state.pdf.rong = action.payload
+            if (state.pdf) state.pdf.rong = action.payload;
         },
         setHeightPdf: (state, action) => {
-            if (state.pdf) state.pdf.dai = action.payload
-        }
+            if (state.pdf) state.pdf.dai = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
             .addCase(getAllElementsOfPdf.fulfilled, (state, action) => {
-                const { data } = action.payload
-                state.pdf = data.pdf
-                state.elements = data.elements
-                state.currentPdfValue = data.pdf
-                state.currentElementsValue = data.elements
+                const { pdf, elements, tables } = action.payload.data;
+                state.pdf = pdf;
+                state.elements = elements;
+                state.currentPdfValue = pdf;
+                state.currentElementsValue = elements;
+                state.tables = tables;
+                state.currentTables = tables;
             })
             .addCase(saveAllElements.fulfilled, (state, action) => {
-                state.currentElementsValue = state.elements
+                state.currentElementsValue = state.elements;
             })
             .addCase(savePdfSize.fulfilled, (state, action) => {
-                state.currentPdfValue = state.pdf
+                state.currentPdfValue = state.pdf;
             });
     },
 });
@@ -221,6 +241,7 @@ export const {
     toggleDot,
     setWidthBoxsItem,
     toggleBox,
+    movePositionCol,
     changeWidth,
     setWidthDotItem,
     moveCol,
@@ -238,6 +259,6 @@ export const {
     changeFontSizeGiaTri,
     moveTable,
     setWidthPdf,
-    setHeightPdf
+    setHeightPdf,
 } = dataSlice.actions;
 export default dataSlice.reducer;
