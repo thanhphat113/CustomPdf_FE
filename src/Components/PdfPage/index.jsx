@@ -9,7 +9,7 @@ import SimpleElements from "../simpleElements";
 import DrawDot from "../simpleElements/DrawDot";
 import DrawBox from "../simpleElements/DrawBox";
 import TableElement from "../TableElement";
-
+import { GroupCol } from "../../Helpers/GroupCol";
 
 const SNAP_TOLERANCE = 3;
 const SNAP_TOLERANCE_BETWEEN = 50;
@@ -18,14 +18,19 @@ function PdfPage({ widthMm, heightMm }) {
     const widthPx = mmToPx(widthMm);
     const heightPx = mmToPx(heightMm);
 
-    const {elements, tables} = useSelector((state) => state.data);
+    const { elements, tables } = useSelector((state) => state.data);
 
     // const tableElements = data.filter((e) => e.type === "table");
 
     const dispatch = useDispatch();
     const [simpleElements, setSimpleElements] = useState([]);
     const [elementsWithSTT, setElementsWithSTT] = useState([]);
-    const [guides, setGuides] = useState({ x: null, y: null });
+    const [guides, setGuides] = useState({
+        s: null,
+        b: null,
+        e: null,
+        c: null,
+    });
     const pdfRef = useRef();
 
     const positionsRef = useRef({});
@@ -43,7 +48,8 @@ function PdfPage({ widthMm, heightMm }) {
         const flatElements = simpleElements.flat();
         const { x, y } = positionsRef.current[id];
 
-        setGuides({ x: null, y: null });
+        setGuides({ s: null, b: null, e: null, c: null });
+
         dispatch(moveElement({ flatElements, id, snapS: x, snapT: y }));
     };
 
@@ -51,7 +57,7 @@ function PdfPage({ widthMm, heightMm }) {
         // console.log(positionsRef.current)
 
         const { y } = positionsRef.current[id];
-        setGuides({ x: null, y: null });
+        setGuides({ s: null, t: null, e: null, c: null });
         dispatch(moveTable({ id, snapT: y }));
     };
 
@@ -67,8 +73,10 @@ function PdfPage({ widthMm, heightMm }) {
         let snapX = data.x;
         let snapY = data.y;
 
-        let guideX = 0;
-        let guideY = 0;
+        let guideS = 0;
+        let guideB = 0;
+        let guideC = 0;
+        let guideE = 0;
 
         const flatElements = simpleElements.flat();
 
@@ -84,20 +92,23 @@ function PdfPage({ widthMm, heightMm }) {
 
         const centerElement = data.x + centerText;
         const centerContext = pdfRef.current.offsetWidth / 2;
-
+        
+        //Căn giữa pdf
         if (Math.abs(centerElement - centerContext) < SNAP_TOLERANCE) {
             snapX = centerContext - centerText;
-            guideX = centerContext;
+            guideC = centerContext;
         }
 
         for (const item of elementActive) {
             if (item.idThuocTinh === currentElement.idThuocTinh) continue;
-
+            
+            //Căn theo trái
             if (Math.abs(data.x - item.x) < SNAP_TOLERANCE) {
                 snapX = item.x;
-                guideX = item.x;
+                guideS = item.x;
             }
 
+            //Căn theo phải
             if (
                 Math.abs(
                     data.x +
@@ -119,23 +130,25 @@ function PdfPage({ widthMm, heightMm }) {
                         `${currentElement.noiDung}:`,
                         ptToPx(item.fontSize)
                     );
-                guideX =
+                guideE =
                     item.x +
                     getTextWidth(`${item.noiDung}:`, ptToPx(item.fontSize));
+                console.log("đây là e:",guideE)
             }
-
+            
+            //Căn theo top
             if (Math.abs(data.y - item.y) < SNAP_TOLERANCE) {
                 snapY = item.y;
-                guideY = item.y + 25;
+                guideB = item.y + 25;
             }
         }
-
-        setGuides({ x: guideX, y: guideY });
+        console.log(guides)
+        setGuides({ s: guideS, b: guideB, e:guideE, c: guideC });
         positionsRef.current[currentElement.idThuocTinh] = {
             x: snapX,
             y: snapY,
         };
-    }; 
+    };
 
     return (
         <div
@@ -148,16 +161,28 @@ function PdfPage({ widthMm, heightMm }) {
             className="bg-white my-6 overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.3)] mx-auto"
         >
             <div ref={pdfRef} className="relative w-full h-full">
-                {guides.x !== null && guides.x !== 0 && (
+                {guides.s !== null && guides.s !== 0 && (
                     <div
                         className="absolute w-[1px] h-full text-center border border-dotted z-10"
-                        style={{ left: guides.x - 0.5 }}
+                        style={{ left: guides.s - 0.5 }}
                     ></div>
                 )}
-                {guides.y !== null && guides.y !== 0 && (
+                {guides.b !== null && guides.b !== 0 && (
                     <div
                         className="absolute h-[1px] w-full border border-dotted z-10"
-                        style={{ top: guides.y }}
+                        style={{ top: guides.b }}
+                    />
+                )}
+                {guides.c !== null && guides.c !== 0 && (
+                    <div
+                        className="absolute h-[1px] h-full border border-dotted z-10"
+                        style={{ left: guides.c }}
+                    />
+                )}
+                {guides.e !== null && guides.e !== 0 && (
+                    <div
+                        className="absolute h-[1px] h-full border border-dotted z-10"
+                        style={{ left: guides.e }}
                     />
                 )}
                 {simpleElements.map((el, idx) => (
@@ -242,7 +267,7 @@ function PdfPage({ widthMm, heightMm }) {
                             handleDrag={handleDragTable}
                             key={item.idThuocTinh}
                             table={item}
-                            refParent = {pdfRef}
+                            refParent={pdfRef}
                         ></TableElement>
                     ))}
             </div>

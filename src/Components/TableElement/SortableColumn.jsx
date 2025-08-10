@@ -28,10 +28,10 @@ function SortableColumn({ col, onPositionChange }) {
             }}
             {...attributes}
             {...listeners}
-            className="border px-2 py-1 text-center cursor-move"
+            className="border w-20 px-2 py-1 text-center cursor-move"
             style={style}
-            // colSpan={col.colSpan}
-            // rowSpan={col.rowSpan}
+            colSpan={col.colSpan}
+            rowSpan={col.rowSpan}
         >
             {col.tenCot}
         </th>

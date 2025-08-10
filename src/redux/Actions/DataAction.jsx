@@ -19,10 +19,8 @@ export const saveAllElements = createAsyncThunk(
     "pdf/saveElements", // Tên action
     async (items, thunkAPI) => {
         try {
-            console.log(items)
             const state = thunkAPI.getState();
             const currentElements = state.data.currentElementsValue;
-            const currentTables = state.data.currentTablesValue;
 
             const isEqual = _.isEqual(items.elements, currentElements);
             if (isEqual)
@@ -43,6 +41,7 @@ export const saveAllElements = createAsyncThunk(
         }
     }
 );
+
 
 
 export const savePdfSize = createAsyncThunk(

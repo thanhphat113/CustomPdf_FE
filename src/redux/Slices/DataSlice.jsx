@@ -58,18 +58,35 @@ const dataSlice = createSlice({
 
             if (oldIndex === -1 || newIndex === -1) return;
 
+            const t = oldIndex + 1
+            element.cots[oldIndex].thuTu = newIndex+1
+            element.cots[newIndex].thuTu = t
+
             element.cots = arrayMove(element.cots, oldIndex, newIndex);
         },
         movePositionCol: (state, action) => {
-            const { id, idCot, position } = action.payload;
-            console.log(id, idCot, position);
+            const { id, idCot, position, child } = action.payload;
 
             const table = state.tables.find((el) => el.idThuocTinh === id);
             const col = table.cots.find((el) => el.idCot === idCot);
-            
-            col.x = position.x
-            col.y = position.y
-            col.rong = position.rong
+
+            if (child) {
+                const list = JSON.parse(JSON.stringify(col.chilCol));
+
+                const result = list.map((el) => {
+                    const match = child.find((c) => c.id == el.idCot);
+                    return match
+                        ? { ...el, x: match.x, y: match.y, rong: match.rong, cao: match.cao }
+                        : el;
+                });
+
+                col.chilCol = result
+            }
+
+            col.x = position.x;
+            col.y = position.y;
+            col.rong = position.rong;
+            col.cao = position.cao;
         },
         toggleStt: (state, action) => {
             const element = state.elements.find(
